@@ -1,0 +1,26 @@
+%YAML:1.0
+# points on calibration grid
+xCount: 6
+yCount: 4
+# size of playing field, including walls (mm)
+floorWidth: 3500
+floorHeight: 2000
+# diameter of ball (mm) (for spacing grid from walls)
+ballSize: 60
+# thickness of walls (mm)
+wallSize: 32
+# width of digital image (px) (before adjustments for projection mapping)
+# ie: max projector resolution
+imgWidth: 1024
+# offsets/scaling for projection mapping
+mapScale: 0.8665
+mapXoff: -8.5
+mapYoff: -28
+# filtering unwanted blobs
+blobMin: 30
+blobMax: 450
+# approximate blob sizes and squareness for identifying ball and hole
+ballBlob: 50
+holeBlob: 340
+blobSizeRange: 100
+blobSquare: 0.8
