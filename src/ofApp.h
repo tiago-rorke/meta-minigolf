@@ -5,6 +5,8 @@
 #include "ofxOpenCv.h"
 #include "GuiApp.h"
 
+#include "Scenes.h"
+
 class ofApp : public ofBaseApp{
 
 public:
@@ -86,9 +88,30 @@ public:
 	void drawFloor();
 	void drawPlay();
 
+	Scenes scenes;
+	int scene;
 
 	// DEGBUGGIN
 
 	bool toggleUndistort;
 
 };
+
+/*
+
+class Ball {
+
+public:
+
+	void setup();
+	void update(ofVec2f tracking);
+
+	ofVec2f pos[BALL_POS_SMAPLES];
+	int ind; // index in pos array
+	ofVec2f vel; // velocity in x and y
+	float mvel; // total velocity
+
+
+}
+
+*/

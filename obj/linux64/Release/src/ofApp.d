@@ -564,7 +564,8 @@ obj/linux64/Release/src/ofApp.o: \
  /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxButton.h \
  /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxLabel.h \
  /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxColorPicker.h \
- /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxPanel.h
+ /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxPanel.h \
+ /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h
 
 /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/ofApp.h:
 
@@ -1729,3 +1730,5 @@ obj/linux64/Release/src/ofApp.o: \
 /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxColorPicker.h:
 
 /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxPanel.h:
+
+/home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h:

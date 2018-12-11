@@ -3,6 +3,8 @@
 using namespace ofxCv;
 using namespace cv;
 
+#define BALL_POS_SMAPLES 5
+
 void ofApp::setup(){
 	ofSetVerticalSync(true);
 	ofSetWindowPosition(1920,0);
@@ -54,6 +56,8 @@ void ofApp::setup(){
 	imgHeight = (floorHeight/floorWidth) * imgWidth;
 	imgScale = imgWidth/floorWidth;
 	camScale = imgWidth/cam.getWidth();
+	scenes.setup(imgWidth, imgHeight);
+	scene = 0;
 	
 	updateOffsets();
 	ballId = -1;
@@ -94,6 +98,7 @@ void ofApp::setup(){
 	// graphics
 	ofSetCircleResolution(100);
 
+
 	// DEBUGGING
 	toggleUndistort = true;
 
@@ -120,46 +125,6 @@ void ofApp::draw(){
 	ofScale(camScale);
 	drawTracking();	
 	ofNoFill();
-	/*
-	ofDrawCircle(74,75.5, 10);
-	ofDrawCircle(229,67, 10);
-	ofDrawCircle(395.5,65.5, 10);
-	ofDrawCircle(553,71, 10);
-	ofDrawCircle(67,232, 10);
-	ofDrawCircle(226.5,234, 10);
-	ofDrawCircle(399.5,232.5, 10);
-	ofDrawCircle(562.5,231.5, 10);
-	ofDrawCircle(69,396, 10);
-	ofDrawCircle(227.5,405.5, 10);
-	ofDrawCircle(399,405.5, 10);
-	ofDrawCircle(559,396, 10);
-	*/
-	/*
-	ofDrawCircle(51,76, 10);
-	ofDrawCircle(148,70.5, 10);
-	ofDrawCircle(256,65.5, 10);
-	ofDrawCircle(367.5,66.5, 10);
-	ofDrawCircle(476.5,69.5, 10);
-	ofDrawCircle(575.5,74, 10);
-	ofDrawCircle(44,178, 10);
-	ofDrawCircle(144.5,176, 10);
-	ofDrawCircle(254.5,176, 10);
-	ofDrawCircle(370.5,175.5, 10);
-	ofDrawCircle(482.5,175, 10);
-	ofDrawCircle(584,177, 10);
-	ofDrawCircle(42,286, 10);
-	ofDrawCircle(143.5,291, 10);
-	ofDrawCircle(254.5,291, 10);
-	ofDrawCircle(371.5,291.5, 10);
-	ofDrawCircle(483.5,288.5, 10);
-	ofDrawCircle(587,284.5, 10);
-	ofDrawCircle(45.5,395, 10);
-	ofDrawCircle(145,401, 10);
-	ofDrawCircle(255.5,406, 10);
-	ofDrawCircle(371,406.5, 10);
-	ofDrawCircle(482,402, 10);
-	ofDrawCircle(584,393.5, 10);
-	*/
 	ofPopMatrix();
 	ofTranslate(imgOffset.x, imgOffset.y);
 	//if(!camCalibrated) {
@@ -411,6 +376,52 @@ void ofApp::drawFloor() {
 
 // ------------------------------------------------------------- //
 
+
+void ofApp::drawPlay() {
+
+	// tracking dots
+	//ofFill();
+	//ofSetHexColor(0xff0000); 
+	//ofDrawCircle(bx, by, 5);
+	//ofDrawCircle(hx, hy, 5);
+
+	scenes.update(gotTracking, gotBallOrigin, ballPos, holePos, ballOrigin);
+	
+	switch(scene) {
+		case 0:
+			scenes.circleLine();
+			break;
+		case 1:
+			scenes.circles();
+			break;
+		case 2:
+			scenes.parabolas();
+			break;
+	}
+
+	// draw background mask
+	ofFill();
+	ofSetHexColor(0x000000); 
+	ofBeginShape();
+	float m = -500;
+	ofVertex(m, m);
+	ofVertex(imgWidth - m, m);
+	ofVertex(imgWidth - m, imgHeight - m);
+	ofVertex(m,imgHeight - m);
+	ofNextContour(true);
+	m = wallSize*imgScale + 10; // wallsize + margin to mask inside face of wall
+	ofVertex(m, m);
+	ofVertex(imgWidth - m, m);
+	// inside face is not a problem on the bottom edge
+	// because of the position of the projector
+	ofVertex(imgWidth - m, imgHeight - m + 7);
+	ofVertex(m,imgHeight - m + 7);
+	ofEndShape(true);
+
+}
+
+// ------------------------------------------------------------- //
+
 void ofApp::keyPressed(int key){
 
 	switch (key){
@@ -431,47 +442,19 @@ void ofApp::keyPressed(int key){
 			cout << toggleUndistort << endl;
 			break;
 
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+			scene = int(key) - 48;
+			cout << "scene: " << scene << endl;
+			break;
+
 		// calibration debugging
 		case 'q':
-			/*
-			calibrationPoints.push_back(cv::Point2f(51,76));
-			calibrationPoints.push_back(cv::Point2f(148,70.5));
-			calibrationPoints.push_back(cv::Point2f(256,65.5));
-			calibrationPoints.push_back(cv::Point2f(367.5,66.5));
-			calibrationPoints.push_back(cv::Point2f(476.5,69.5));
-			calibrationPoints.push_back(cv::Point2f(575.5,74));
-			calibrationPoints.push_back(cv::Point2f(44,178));
-			calibrationPoints.push_back(cv::Point2f(144.5,176));
-			calibrationPoints.push_back(cv::Point2f(254.5,176));
-			calibrationPoints.push_back(cv::Point2f(370.5,175.5));
-			calibrationPoints.push_back(cv::Point2f(482.5,175));
-			calibrationPoints.push_back(cv::Point2f(584,177));
-			calibrationPoints.push_back(cv::Point2f(42,286));
-			calibrationPoints.push_back(cv::Point2f(143.5,291));
-			calibrationPoints.push_back(cv::Point2f(254.5,291));
-			calibrationPoints.push_back(cv::Point2f(371.5,291.5));
-			calibrationPoints.push_back(cv::Point2f(483.5,288.5));
-			calibrationPoints.push_back(cv::Point2f(587,284.5));
-			calibrationPoints.push_back(cv::Point2f(45.5,395));
-			calibrationPoints.push_back(cv::Point2f(145,401));
-			calibrationPoints.push_back(cv::Point2f(255.5,406));
-			calibrationPoints.push_back(cv::Point2f(371,406.5));
-			calibrationPoints.push_back(cv::Point2f(482,402));
-			calibrationPoints.push_back(cv::Point2f(584,393.5));
-			*/
-			calibrationPoints.push_back(cv::Point2f(553,71));
-			calibrationPoints.push_back(cv::Point2f(396.5,65.5));
-			calibrationPoints.push_back(cv::Point2f(232,67));
-			calibrationPoints.push_back(cv::Point2f(80,75.5));
-			calibrationPoints.push_back(cv::Point2f(562.5,231.5));
-			calibrationPoints.push_back(cv::Point2f(400.5,232.5));
-			calibrationPoints.push_back(cv::Point2f(229.5,234));
-			calibrationPoints.push_back(cv::Point2f(73,232));
-			calibrationPoints.push_back(cv::Point2f(559,396));
-			calibrationPoints.push_back(cv::Point2f(400,405.5));
-			calibrationPoints.push_back(cv::Point2f(230.5,405.5));
-			calibrationPoints.push_back(cv::Point2f(75,396));
-
 			cout << "applying calibration..." << endl;
 			updateCalibration();
 			cout << "done" << endl;
@@ -483,8 +466,6 @@ void ofApp::keyPressed(int key){
 			setBallOrigin = true;
 			break;
 
-
-
 	}
 }
 
@@ -495,177 +476,31 @@ void ofApp::mousePressed(int x, int y, int button){
 }
 
 
-/*
-// For porting from processing
-
-class Hole {
-
-	PVector pos;
-
-	Hole(Tracking tracking) {
-		pos = new PVector();
-		update(tracking);
-	}
-
-	void update(Tracking tracking) {
-		pos.x = tracking.hole.x;
-		pos.y = tracking.hole.y;
-	}
-
-}
-
-
-
-class Ball {
-	
-	PVector[] pos = new PVector[BALL_POS_SMAPLES];
-	int ind; // index in pos array
-	PVector vel; // velocity in x and y
-	float mvel; // total velocity
-
-	Ball(Tracking tracking) {
-		for (int i = 0; i < BALL_POS_SMAPLES; i++) {
-			pos[i] = new PVector();
-			pos[i].x = tracking.ball.x;
-			pos[i].y = tracking.ball.y;
-		}
-		vel = new PVector(0, 0);
-		ind = 0;
-	}
-
-	void update(Tracking tracking) {
-		pos[ind].x = tracking.ball.x;
-		pos[ind].y = tracking.ball.y;
-		ind++;
-		ind = ind >= BALL_POS_SMAPLES ? 0 : ind;
-		float dtime = BALL_POS_SMAPLES / FRAME_RATE;
-		float dx = pos[0].x - pos[BALL_POS_SMAPLES-1].x;
-		float dy = pos[0].y - pos[BALL_POS_SMAPLES-1].y;
-		vel.x = dx/dtime;
-		vel.y = dy/dtime;
-		mvel = vel.mag();
-	}
-
-}
-*/
-
 
 // =============================================================== //
+/*
 
-
-
-
-void ofApp::drawPlay() {
-
-	float bx = ballPos.x;
-	float by = ballPos.y;
-	float hx = holePos.x;
-	float hy = holePos.y;
-	float bxo = ballOrigin.x;
-	float byo = ballOrigin.y;
-	
-	// tracking dots
-	//ofFill();
-	//ofSetHexColor(0xff0000); 
-	//ofDrawCircle(bx, by, 5);
-	//ofDrawCircle(hx, hy, 5);
-
-	float bhd = ofDist(bx, by, hx, hy);
-	float bod = ofDist(bxo, byo, hx, hy);
-	float bha = -glm::atan((bx-hx)/(by-hy));
-	if(by-hy > 0) {
-		bha += ofDegToRad(180.f);
+void Ball::setup() {
+	for (int i = 0; i < BALL_POS_SMAPLES; i++) {
+		pos[i] = new PVector();
+		pos[i].x = tracking.ball.x;
+		pos[i].y = tracking.ball.y;
 	}
-
-	//cout << aba << endl;
-
-	// --------------------------------------------
-
-	////// SIMPLE CIRCLE AND LINE
-	/*
-	if(gotTracking) {
-		ofPushMatrix();
-		ofTranslate(bx, by);
-		ofRotateRad(bha);
-		ofNoFill();
-		ofSetHexColor(0xffffff); 
-		ofDrawCircle(0, 0, bhd);
-		ofDrawLine(0, 0, 0, bhd);
-		ofPopMatrix();
-	}	
-	*/
-	// --------------------------------------------
-
-	////// CONDENSING PARABOLAS
-	
-	if(gotTracking && gotBallOrigin) {
-		ofPushMatrix();
-		ofTranslate(bx, by);
-		ofRotateRad(bha);
-		ofNoFill();
-		ofSetHexColor(0xffffff); 
-		int n = 20;
-		float di = bhd / n;
-		float a = 1-(bhd / bod);
-		if(a < 0) a = 0;
-		for (float y = di; y < bhd; y += di) {
-			ofBeginShape();
-			for (float x = -2000; x < 2000; x += 10) {
-				float y1 = y + 0.01 * a * y/bhd * x * x;
-				ofVertex(ofPoint(x,y1));
-			}
-			//ofDrawLine(x, y, x, y);
-    		ofEndShape();
-		}
-		ofPopMatrix();
-	}	
-	
-	// --------------------------------------------
-
-
-	////// CONCENTRIC CIRCLES
-	/*
-	if(gotTracking) {
-		ofNoFill();
-		ofSetHexColor(0xffffff); 
-		float a = bhd/10;
-		if(bhd > 10) {
-			ofPushMatrix();
-			ofTranslate(bx, by);
-			for (float i = 0; i < imgWidth*2; i+= a) {
-				ofDrawCircle(0,0,i);
-			}
-			ofPopMatrix();
-			ofPushMatrix();
-			ofTranslate(hx, hy);
-			for (float i = 0; i < imgWidth*2; i+= a) {
-				ofDrawCircle(0,0,i);
-			}
-			ofPopMatrix();
-		}
-	}
-
-*/
-	// --------------------------------------------
-	// draw background mask
-	ofFill();
-	ofSetHexColor(0x000000); 
-	ofBeginShape();
-	float m = -500;
-	ofVertex(m, m);
-	ofVertex(imgWidth - m, m);
-	ofVertex(imgWidth - m, imgHeight - m);
-	ofVertex(m,imgHeight - m);
-	ofNextContour(true);
-	m = wallSize*imgScale + 10; // wallsize + margin to mask inside face of wall
-	ofVertex(m, m);
-	ofVertex(imgWidth - m, m);
-	// inside face is not a problem on the bottom edge
-	// because of the position of the projector
-	ofVertex(imgWidth - m, imgHeight - m + 7);
-	ofVertex(m,imgHeight - m + 7);
-	ofEndShape(true);
-
-
-
+	vel = new PVector(0, 0);
+	ind = 0;
 }
+
+void Ball::update(ball) {
+
+	pos[ind].x = tracking.ball.x;
+	pos[ind].y = tracking.ball.y;
+	ind++;
+	ind = ind >= BALL_POS_SMAPLES ? 0 : ind;
+	float dtime = BALL_POS_SMAPLES / FRAME_RATE;
+	float dx = pos[0].x - pos[BALL_POS_SMAPLES-1].x;
+	float dy = pos[0].y - pos[BALL_POS_SMAPLES-1].y;
+	vel.x = dx/dtime;
+	vel.y = dy/dtime;
+	mvel = vel.mag();
+
+}*/
