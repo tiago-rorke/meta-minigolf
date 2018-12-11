@@ -12,6 +12,7 @@ public:
 	void update();
 	void draw();
 	void keyPressed(int key);
+	void mousePressed(int x, int y, int button);
 	
 	//ofxPanel gui;
 	shared_ptr<GuiApp> gui;
@@ -22,6 +23,7 @@ public:
    ofxCvGrayscaleImage camGray;
 	ofxCvGrayscaleImage camBkgd;
    ofxCvGrayscaleImage camDiff;
+	ofImage camUndistorted;
 	ofxCvContourFinder contourFinder;
 	int threshold;
 	bool getBkgd;
@@ -31,6 +33,10 @@ public:
 	int holeId;
 	ofVec2f ballPos;
 	ofVec2f holePos;
+	bool gotTracking;
+	ofVec2f ballOrigin;
+	bool setBallOrigin;
+	bool gotBallOrigin;
 	// in gui > 
 	/*
 	<int> blobMin;
@@ -59,6 +65,7 @@ public:
 	float camScale; // ratio of camera image width to imgWidth
 	int gridIndex; // for interating through grid to define vertex positions
 	float gridRes; // size of grid cells in pixels for projection, at imgScale // "squareSize"
+	vector<cv::Point2f> calibrationPoints;
 	
 	// Projection mapping data
 	ofVec2f mapOffset;
@@ -72,9 +79,16 @@ public:
 	void updateOffsets();
 	void updateVision();
 	void updateTracking();
+	void addCalibrationPoint();
+	void updateCalibration();
 	void drawGrid();
 	void drawTracking();
 	void drawFloor();
 	void drawPlay();
-		
+
+
+	// DEGBUGGIN
+
+	bool toggleUndistort;
+
 };

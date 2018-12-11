@@ -5,9 +5,9 @@ void GuiApp::setup(){
 
 	parameters.setName("parameters");
 	// initial values defined in settings.yml
-	parameters.add(mapScale.set("map scale", 0, 0.7, 1.0));
+	parameters.add(mapScale.set("map scale", 0, 0.85, 0.9));
 	parameters.add(mapXoff.set("map offset x", 0, -50, 50));
-	parameters.add(mapYoff.set("map offset y", 0, -50, 50));
+	parameters.add(mapYoff.set("map offset y", 0, -75, 75));
 	parameters.add(blobMin.set("min blob size", 0, 3, 150));
 	parameters.add(blobMax.set("max blob size", 0, 150, 500));
 	parameters.add(ballBlob.set("ball blob size", 0, 10, 100));
