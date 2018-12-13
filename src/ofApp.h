@@ -4,8 +4,24 @@
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
 #include "GuiApp.h"
+#include "ofxOsc.h"
 
 #include "Scenes.h"
+#include "ObjTracker.h"
+
+// port for listening for osc for tracking
+#define PORT_TRACKING 12345
+
+// #define USE_CAM
+#define USE_OSC_TRACKING
+// #define USE_PROJECTION
+// #define CALIBRATE
+// #define DEBUG // draw tracking data etc...
+
+// for calculating velocity, record a number of samples of the ball position
+// vel is the total displacement between these frames.
+#define POS_SMAPLES 5
+
 
 class ofApp : public ofBaseApp{
 
@@ -15,9 +31,13 @@ public:
 	void draw();
 	void keyPressed(int key);
 	void mousePressed(int x, int y, int button);
+	void mouseDragged(int x, int y, int button);
 	
-	//ofxPanel gui;
+	// ofxPanel gui;
 	shared_ptr<GuiApp> gui;
+
+	// osc  
+	ofxOscReceiver oscTracking;
 
 	// comupter vision
 	ofVideoGrabber cam;
@@ -30,7 +50,7 @@ public:
 	int threshold;
 	bool getBkgd;
 	int bkgdCounter;
-	bool camCalibrated;
+	bool trackingCalibrated;
 	int ballId; // blob ids
 	int holeId;
 	ofVec2f ballPos;
@@ -64,9 +84,11 @@ public:
 	ofxCv::Calibration calibration;
 	int gridCountX;
 	int gridCountY;
-	float camScale; // ratio of camera image width to imgWidth
+	float trackingScale; // ratio of camera image width to imgWidth (or incomingtracking coords via osc)
+	ofVec2f trackingOffset;
 	int gridIndex; // for interating through grid to define vertex positions
-	float gridRes; // size of grid cells in pixels for projection, at imgScale // "squareSize"
+	float gridResX; // size of grid cells in pixels for projection, at imgScale // originally "squareSize" from checkboard openCV example
+	float gridResY;
 	vector<cv::Point2f> calibrationPoints;
 	
 	// Projection mapping data
@@ -80,13 +102,19 @@ public:
 
 	void updateOffsets();
 	void updateVision();
-	void updateTracking();
+	bool updateTracking();
 	void addCalibrationPoint();
 	void updateCalibration();
 	void drawGrid();
 	void drawTracking();
 	void drawFloor();
 	void drawPlay();
+
+	void updateOscTracking();
+
+	// tracker object filters positions and calcs velocity
+	ObjTracker ball;
+	ObjTracker hole;
 
 	Scenes scenes;
 	int scene;
@@ -96,22 +124,3 @@ public:
 	bool toggleUndistort;
 
 };
-
-/*
-
-class Ball {
-
-public:
-
-	void setup();
-	void update(ofVec2f tracking);
-
-	ofVec2f pos[BALL_POS_SMAPLES];
-	int ind; // index in pos array
-	ofVec2f vel; // velocity in x and y
-	float mvel; // total velocity
-
-
-}
-
-*/

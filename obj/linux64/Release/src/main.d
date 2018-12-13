@@ -565,7 +565,24 @@ obj/linux64/Release/src/main.o: \
  /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxLabel.h \
  /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxColorPicker.h \
  /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxPanel.h \
- /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h
+ /opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOsc.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscArg.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscMessage.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscSender.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscException.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscBundle.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscReceiver.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
+ /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
+ /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h \
+ /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/ObjTracker.h
 
 /opt/openframeworks-0.10.1/libs/openFrameworks/ofMain.h:
 
@@ -1731,4 +1748,38 @@ obj/linux64/Release/src/main.o: \
 
 /opt/openframeworks-0.10.1/addons/ofxGui/src/ofxPanel.h:
 
+/opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOsc.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscArg.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscMessage.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscSender.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscOutboundPacketStream.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscTypes.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscException.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/ip/UdpSocket.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/ip/NetworkingUtils.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/ip/IpEndpointName.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscBundle.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/src/ofxOscReceiver.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h:
+
+/opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
+
 /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h:
+
+/home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/ObjTracker.h:

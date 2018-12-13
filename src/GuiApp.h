@@ -20,6 +20,7 @@ public:
 	ofParameter<int> holeBlob;
 	ofParameter<int> blobSizeRange;
 	ofParameter<float> blobSquare;
+	ofParameter<float> trackingThreshold;
 	
 	ofxPanel gui;
 };

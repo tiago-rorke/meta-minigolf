@@ -3,12 +3,29 @@
 using namespace ofxCv;
 using namespace cv;
 
-#define BALL_POS_SMAPLES 5
 
 void ofApp::setup(){
+	
 	ofSetVerticalSync(true);
-	ofSetWindowPosition(1920,0);
-	cam.setup(640, 480);
+
+	#ifdef USE_OSC_TRACKING
+		oscTracking.setup(PORT_TRACKING);
+	#elif USE_CAM
+		cam.setup(640, 480);
+	#else
+		ballPos = ofVec2f(100,100);
+		holePos = ofVec2f(300,100);
+		// this is doing wierd things
+		//ballPos = ofVec2f(imgWidth/4, imgHeight/2);
+		//holePos = ofVec2f(3*imgWidth/4, imgHeight/2);
+	#endif
+
+	#ifdef USE_PROJECTION
+		ofSetWindowPosition(1920,0);
+	#else
+		ofSetWindowPosition(500,100);
+	#endif
+
 
 	// load settings
 	FileStorage settings(ofToDataPath("settings.yml"), FileStorage::READ);
@@ -29,6 +46,7 @@ void ofApp::setup(){
 		gui->holeBlob = settings["holeBlob"];
 		gui->blobSizeRange = settings["blobSizeRange"];
 		gui->blobSquare = settings["blobSquare"];
+		gui->trackingThreshold = settings["trackingThreshold"];
 	} else {
 		// use default values
 		cout << "cannot load settings.yml, using default values" << endl;
@@ -50,12 +68,30 @@ void ofApp::setup(){
 		gui->blobSquare = 0.8;
 	}
 
+	#ifdef USE_CAM
+		trackingScale = imgWidth/cam.getWidth();
+		trackingOffset = ofVec2f(0,0);  // ???
+	#else
+		trackingScale = 1;
+		trackingOffset = ofVec2f(0,0);
+	#endif
+
+	#ifdef CALIBRATE
+		trackingCalibrated = false;
+	#else
+		trackingCalibrated = true;
+	#endif
+
+
 	float floorGridHeight = floorHeight - 2*wallSize - ballSize;
 	float gridHeight = (float(imgWidth)/floorWidth) * floorGridHeight;
-	gridRes = gridHeight/(gridCountY-1);
+	gridResY = gridHeight/(gridCountY-1);
+	float floorGridWidth = floorWidth - 2*wallSize - ballSize;
+	float gridWidth = (float(imgWidth)/floorWidth) * floorGridWidth;
+	gridResX = gridWidth/(gridCountX-1);
+
 	imgHeight = (floorHeight/floorWidth) * imgWidth;
 	imgScale = imgWidth/floorWidth;
-	camScale = imgWidth/cam.getWidth();
 	scenes.setup(imgWidth, imgHeight);
 	scene = 0;
 	
@@ -69,9 +105,9 @@ void ofApp::setup(){
 	cout << "wallSize = " << wallSize << endl;
 	cout << "floorWidth = " << floorWidth << endl;
 	cout << "floorHeight = " << floorHeight << endl;
-	cout << "floorGridHeight = " << floorGridHeight << endl;
-	cout << "gridHeight = " << gridHeight << endl;
-	cout << "gridRes = " << gridRes << endl;
+	cout << "floor grid size = " << floorGridWidth << "x" << floorGridHeight << endl;
+	cout << "grid size = " << gridWidth << "x" << gridHeight << endl;
+	cout << "gridRes = " << gridResX << "x" << gridResY << endl;
 	cout << "mapScale = " << gui->mapScale << endl;
 	cout << "mapXoff = " << gui->mapXoff << endl;
 	cout << "mapYoff = " << gui->mapYoff << endl;
@@ -82,18 +118,20 @@ void ofApp::setup(){
 	threshold = 80;
 
 	// calibration
+	/*
 	imitate(camUndistorted, cam);
 	calibration.setPatternSize(gridCountX, gridCountY);
 	calibration.setSquareSize(gridRes);
 	CalibrationPattern patternType;
 	patternType = CHESSBOARD;
 	calibration.setPatternType(patternType);
+	*/
 	gridIndex = 0;
-	camCalibrated = false;
-
 	// vision
 	setBallOrigin = false;
 	gotBallOrigin = false;
+	ball.setup();
+	hole.setup();
 
 	// graphics
 	ofSetCircleResolution(100);
@@ -107,9 +145,28 @@ void ofApp::setup(){
 
 void ofApp::update(){
 	
+	updateOscTracking();
 	updateOffsets();
-	updateVision();
-	updateTracking();
+	#ifdef USE_CAM
+		updateVision();
+		if(updateTracking()) {
+			gotTracking = true;
+			if(setBallOrigin) {
+				ballOrigin = ball.pos[0];
+				setBallOrigin = false;
+				gotBallOrigin = true;
+			}
+		}
+	#else
+	gotTracking = true;
+	if(setBallOrigin) {
+		ballOrigin = ballPos;
+		setBallOrigin = false;
+		gotBallOrigin = true;
+	}
+	#endif
+	ball.update(ballPos, gui->trackingThreshold);
+	hole.update(holePos, gui->trackingThreshold);
 
 }
 
@@ -121,15 +178,18 @@ void ofApp::draw(){
 	ofTranslate(mapOffset.x, mapOffset.y);
 	ofScale(gui->mapScale);
 
+	#ifdef DEBUGG
 	ofPushMatrix();
-	ofScale(camScale);
-	drawTracking();	
-	ofNoFill();
+	ofScale(trackingScale);
+	drawTracking();
 	ofPopMatrix();
+	#endif
+
+	//ofNoFill();
 	ofTranslate(imgOffset.x, imgOffset.y);
-	//if(!camCalibrated) {
-		//drawGrid();
-	//}
+	if(!trackingCalibrated) {
+		drawGrid();
+	}
 	drawPlay();
 	drawFloor();
 	ofPopMatrix();
@@ -145,19 +205,19 @@ void ofApp::updateVision() {
 
 	cam.update();
 
-	if(camCalibrated) {
+	if(trackingCalibrated) {
 		calibration.undistort(toCv(cam), toCv(camUndistorted));
 		camUndistorted.update();
 	}
 
 	if(cam.isFrameNew()) {
-		if(!camCalibrated) {
+		if(!trackingCalibrated) {
 	   	camColor.setFromPixels(cam.getPixels());
 		} else {
 	   	camColor.setFromPixels(camUndistorted.getPixels());			
 		}
 	   camGray = camColor;
-//	   if(!camCalibrated) {
+//	   if(!trackingCalibrated) {
 			if(getBkgd) {
 				camBkgd = camGray;
 				bkgdCounter++;
@@ -188,7 +248,7 @@ void ofApp::updateOffsets() {
 }
 
 
-void ofApp::updateTracking() {
+bool ofApp::updateTracking() {
 	
 	ballId = -1;
 	holeId = -1;
@@ -216,16 +276,13 @@ void ofApp::updateTracking() {
 		ballPos.y = contourFinder.blobs[ballId].boundingRect.getCenter().y;
 		holePos.x = contourFinder.blobs[holeId].boundingRect.getCenter().x;
 		holePos.y = contourFinder.blobs[holeId].boundingRect.getCenter().y;
-		ballPos *= camScale;
-		holePos *= camScale;
-		ballPos -= imgOffset;
-		holePos -= imgOffset;
-		gotTracking = true;
-		if(setBallOrigin) {
-			ballOrigin = ballPos;
-			setBallOrigin = false;
-			gotBallOrigin = true;
-		}
+		ballPos *= trackingScale;
+		holePos *= trackingScale;
+		ballPos += trackingOffset;
+		holePos += trackingOffset;
+		return true;
+	} else {
+		return false;
 	}
 
 
@@ -247,10 +304,11 @@ void ofApp::addCalibrationPoint() {
 	}
 
 	if(gridIndex >= gridCountX * gridCountY) {
-		cout << "applying calibration..." << endl;
-		updateCalibration();
-		cout << "done" << endl;
-		camCalibrated = true;
+		//cout << "applying calibration..." << endl;
+		//updateCalibration();
+		//cout << "done" << endl;
+		cout << "finished adding calibration points" << endl;
+		trackingCalibrated = true;
 		gridIndex = 0;
 	}
 	//cout << gridIndex << endl;
@@ -278,8 +336,8 @@ void ofApp::drawTracking() {
 	ofFill();
 	ofSetHexColor(0xffffff);
 	//camDiff.draw(0, 0);
-/*
-	if(!camCalibrated) {
+
+	if(!trackingCalibrated) {
 		camColor.draw(0,0);
 		//cam.draw(0, 0);
 	} else {
@@ -290,9 +348,9 @@ void ofApp::drawTracking() {
 			cam.draw(0, 0);
 		}
 	}
-	*/
+	
 	//ofNoFill();
-	//ofSetHexColor(0xff0000);
+	//ofSetHexColor(0xff0000);s
 	//ofDrawRectangle(0,0,cam.getWidth(), cam.getHeight());
 	
 	//ofFill();
@@ -321,15 +379,15 @@ void ofApp::drawGrid() {
 	ofFill();
 	ofSetHexColor(0xffffff);
 	// calc grid origin
-	float gridWidth = ((gridCountX-1) * gridRes);
-	float gridHeight = ((gridCountY-1) * gridRes);
+	float gridWidth = ((gridCountX-1) * gridResX);
+	float gridHeight = ((gridCountY-1) * gridResY);
 	float ox = imgWidth/2 - gridWidth/2;
 	float oy = imgHeight/2 - gridHeight/2;
 	for (int i = 0; i < gridCountX; i++) {
-		float x = ox + i * gridRes;
+		float x = ox + i * gridResX;
 		ofDrawLine(x, oy, x, oy + gridHeight);
 		for (int h = 0; h < gridCountY; h++)	{
-			float y = oy + h * gridRes;
+			float y = oy + h * gridResY;
 			ofDrawCircle(x, y, 5);
 			if(i == 0) {
 				ofDrawLine(ox, y, ox + gridWidth, y);
@@ -341,7 +399,7 @@ void ofApp::drawGrid() {
 	float y = floor(gridIndex/gridCountX);
 	ofNoFill();
 	ofSetHexColor(0xff0000);
-	ofDrawCircle(ox + x*gridRes, oy + y*gridRes, 20);
+	ofDrawCircle(ox + x*gridResX, oy + y*gridResY, 20);
 }
 
 
@@ -380,12 +438,17 @@ void ofApp::drawFloor() {
 void ofApp::drawPlay() {
 
 	// tracking dots
-	//ofFill();
-	//ofSetHexColor(0xff0000); 
-	//ofDrawCircle(bx, by, 5);
-	//ofDrawCircle(hx, hy, 5);
+	#ifndef USE_CAM
+	ofFill();
+	ofSetHexColor(0xff0000); 
+	ofDrawCircle(ballPos.x, ballPos.y, 8);
+	ofDrawCircle(holePos.x, holePos.y, 13);
+	ofSetHexColor(0x00ffff); 
+	ofDrawCircle(ball.pos[0].x, ball.pos[0].y, 5);
+	ofDrawCircle(hole.pos[0].x, hole.pos[0].y, 10);
+	#endif
 
-	scenes.update(gotTracking, gotBallOrigin, ballPos, holePos, ballOrigin);
+	scenes.update(gotTracking, gotBallOrigin, ball.pos[0], hole.pos[0], ballOrigin);
 	
 	switch(scene) {
 		case 0:
@@ -396,6 +459,9 @@ void ofApp::drawPlay() {
 			break;
 		case 2:
 			scenes.parabolas();
+			break;
+		case 3:
+			scenes.parallels();
 			break;
 	}
 
@@ -432,7 +498,7 @@ void ofApp::keyPressed(int key){
 			ofToggleFullscreen();
 			break;
 		case 'p':
-			if(!camCalibrated) {
+			if(!trackingCalibrated) {
 				addCalibrationPoint();
 			}
 			break;
@@ -458,7 +524,7 @@ void ofApp::keyPressed(int key){
 			cout << "applying calibration..." << endl;
 			updateCalibration();
 			cout << "done" << endl;
-			camCalibrated = true;
+			trackingCalibrated = true;
 			gridIndex = 0;
 			break;
 
@@ -470,37 +536,49 @@ void ofApp::keyPressed(int key){
 }
 
 void ofApp::mousePressed(int x, int y, int button){
-	if(!camCalibrated) {
-		addCalibrationPoint();
-	}
+	#ifdef USE_CAM
+		if(!trackingCalibrated) {
+			addCalibrationPoint();
+		}
+	#else
+		if(button > 0)
+			ballPos = ofVec2f(x,y);
+		else
+			holePos = ofVec2f(x,y);
+	#endif
 }
 
+void ofApp::mouseDragged(int x, int y, int button) { 
 
+	#ifndef USE_CAM
+		if(button > 0)
+			ballPos = ofVec2f(x,y);
+		else
+			holePos = ofVec2f(x,y);
+	#endif
 
-// =============================================================== //
-/*
-
-void Ball::setup() {
-	for (int i = 0; i < BALL_POS_SMAPLES; i++) {
-		pos[i] = new PVector();
-		pos[i].x = tracking.ball.x;
-		pos[i].y = tracking.ball.y;
-	}
-	vel = new PVector(0, 0);
-	ind = 0;
 }
 
-void Ball::update(ball) {
+// ============================================================
 
-	pos[ind].x = tracking.ball.x;
-	pos[ind].y = tracking.ball.y;
-	ind++;
-	ind = ind >= BALL_POS_SMAPLES ? 0 : ind;
-	float dtime = BALL_POS_SMAPLES / FRAME_RATE;
-	float dx = pos[0].x - pos[BALL_POS_SMAPLES-1].x;
-	float dy = pos[0].y - pos[BALL_POS_SMAPLES-1].y;
-	vel.x = dx/dtime;
-	vel.y = dy/dtime;
-	mvel = vel.mag();
+void ofApp::updateOscTracking() { 
 
-}*/
+	while(oscTracking.hasWaitingMessages()){
+
+		ofxOscMessage m;
+		oscTracking.getNextMessage(m);
+
+		if(m.getAddress() == "/golf"){
+			ballPos.x = m.getArgAsFloat(0);
+			ballPos.y = m.getArgAsFloat(1);
+			holePos.x = m.getArgAsFloat(2);
+			holePos.y = m.getArgAsFloat(3);
+			ballPos *= trackingScale;
+			holePos *= trackingScale;
+			ballPos += trackingOffset;
+			holePos += trackingOffset;
+		}
+
+		//cout << m << endl;
+	}
+}
