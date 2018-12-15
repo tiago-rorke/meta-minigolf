@@ -581,7 +581,7 @@ obj/linux64/Release/src/ofApp.o: \
  /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscPacketListener.h \
  /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/OscReceivedElements.h \
  /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h \
- /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h \
+ /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Game.h \
  /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/ObjTracker.h
 
 /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/ofApp.h:
@@ -1780,6 +1780,6 @@ obj/linux64/Release/src/ofApp.o: \
 
 /opt/openframeworks-0.10.1/addons/ofxOsc/libs/oscpack/src/osc/../ip/PacketListener.h:
 
-/home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Scenes.h:
+/home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/Game.h:
 
 /home/tiago/OpenFrameworks/meta-minigolf/meta-minigolf/src/ObjTracker.h:

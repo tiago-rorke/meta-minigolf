@@ -6,21 +6,21 @@
 #include "GuiApp.h"
 #include "ofxOsc.h"
 
-#include "Scenes.h"
+#include "Game.h"
 #include "ObjTracker.h"
 
-// port for listening for osc for tracking
+// osc ports and host
 #define PORT_TRACKING 12345
+#define PORT_SOUND 8888
+#define HOST_SOUND "localhost"
 
 // #define USE_CAM
 #define USE_OSC_TRACKING
-// #define USE_PROJECTION
+#define USE_PROJECTION
 // #define CALIBRATE
-// #define DEBUG // draw tracking data etc...
+//#define DEBUG // draw tracking data etc...
 
-// for calculating velocity, record a number of samples of the ball position
-// vel is the total displacement between these frames.
-#define POS_SMAPLES 5
+#define NUM_SCENES 4
 
 
 class ofApp : public ofBaseApp{
@@ -38,6 +38,7 @@ public:
 
 	// osc  
 	ofxOscReceiver oscTracking;
+	ofxOscSender oscSound;
 
 	// comupter vision
 	ofVideoGrabber cam;
@@ -57,8 +58,6 @@ public:
 	ofVec2f holePos;
 	bool gotTracking;
 	ofVec2f ballOrigin;
-	bool setBallOrigin;
-	bool gotBallOrigin;
 	// in gui > 
 	/*
 	<int> blobMin;
@@ -102,12 +101,14 @@ public:
 
 	void updateOffsets();
 	void updateVision();
-	bool updateTracking();
+	bool updateCamTracking();
+	void updateSound();
 	void addCalibrationPoint();
 	void updateCalibration();
 	void drawGrid();
 	void drawTracking();
 	void drawFloor();
+
 	void drawPlay();
 
 	void updateOscTracking();
@@ -116,8 +117,7 @@ public:
 	ObjTracker ball;
 	ObjTracker hole;
 
-	Scenes scenes;
-	int scene;
+	Game game;
 
 	// DEGBUGGIN
 

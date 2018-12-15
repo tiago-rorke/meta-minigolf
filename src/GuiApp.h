@@ -21,6 +21,11 @@ public:
 	ofParameter<int> blobSizeRange;
 	ofParameter<float> blobSquare;
 	ofParameter<float> trackingThreshold;
-	
+	ofParameter<float> targetThreshold;
+	ofParameter<float> avgWeighting;
+	ofParameter<float> holeRad;
+	ofParameter<float> ballRad;
+	ofParameter<float> ballVelScalar;
+
 	ofxPanel gui;
 };

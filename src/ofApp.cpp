@@ -6,7 +6,10 @@ using namespace cv;
 
 void ofApp::setup(){
 	
+	ofSetWindowTitle("meta minigolf");
 	ofSetVerticalSync(true);
+
+	oscSound.setup(HOST_SOUND, PORT_SOUND);
 
 	#ifdef USE_OSC_TRACKING
 		oscTracking.setup(PORT_TRACKING);
@@ -47,6 +50,12 @@ void ofApp::setup(){
 		gui->blobSizeRange = settings["blobSizeRange"];
 		gui->blobSquare = settings["blobSquare"];
 		gui->trackingThreshold = settings["trackingThreshold"];
+		gui->targetThreshold = settings["targetThreshold"];
+		gui->avgWeighting = settings["avgWeighting"];
+		gui->ballRad = settings["ballRad"];
+		gui->holeRad = settings["holeRad"];
+		gui->ballVelScalar = settings["ballVelScalar"];
+
 	} else {
 		// use default values
 		cout << "cannot load settings.yml, using default values" << endl;
@@ -92,9 +101,8 @@ void ofApp::setup(){
 
 	imgHeight = (floorHeight/floorWidth) * imgWidth;
 	imgScale = imgWidth/floorWidth;
-	scenes.setup(imgWidth, imgHeight);
-	scene = 0;
-	
+	game.setup(imgWidth, imgHeight);
+		
 	updateOffsets();
 	ballId = -1;
 	holeId = -1;
@@ -128,8 +136,6 @@ void ofApp::setup(){
 	*/
 	gridIndex = 0;
 	// vision
-	setBallOrigin = false;
-	gotBallOrigin = false;
 	ball.setup();
 	hole.setup();
 
@@ -145,28 +151,48 @@ void ofApp::setup(){
 
 void ofApp::update(){
 	
+	#ifdef USE_OSC_TRACKING
 	updateOscTracking();
-	updateOffsets();
+	//updateSound(); // moved to inside updateOscTracking
+	#endif
 	#ifdef USE_CAM
 		updateVision();
-		if(updateTracking()) {
+		if(updateCamTracking()) {
 			gotTracking = true;
+			/*
 			if(setBallOrigin) {
-				ballOrigin = ball.pos[0];
+				game.ballOrigin = ball.spos;
 				setBallOrigin = false;
 				gotBallOrigin = true;
 			}
+			*/
 		}
 	#else
 	gotTracking = true;
+	/*
 	if(setBallOrigin) {
-		ballOrigin = ballPos;
+		game.ballOrigin = ballPos;
 		setBallOrigin = false;
 		gotBallOrigin = true;
 	}
+	*/
 	#endif
-	ball.update(ballPos, gui->trackingThreshold);
-	hole.update(holePos, gui->trackingThreshold);
+	updateOffsets();
+	if(ball.lost) {
+		//???
+	}
+	if(ball.spos.distance(hole.spos) < gui->targetThreshold) {
+		ball.setPos(hole.spos);
+		ball.lock;
+	}
+	game.update(
+		gotTracking, ball.spos, hole.spos, 
+		ball.svel, gui->ballVelScalar, gui->targetThreshold, hole.freeze, gui->ballRad, gui->holeRad);
+	if(game.transition) {
+		hole.lock = true;
+	} else {
+		hole.lock = false;		
+	}
 
 }
 
@@ -177,16 +203,14 @@ void ofApp::draw(){
 	ofPushMatrix();
 	ofTranslate(mapOffset.x, mapOffset.y);
 	ofScale(gui->mapScale);
+	ofTranslate(imgOffset.x, imgOffset.y);
 
-	#ifdef DEBUGG
+	#ifdef DEBUG
 	ofPushMatrix();
 	ofScale(trackingScale);
 	drawTracking();
 	ofPopMatrix();
 	#endif
-
-	//ofNoFill();
-	ofTranslate(imgOffset.x, imgOffset.y);
 	if(!trackingCalibrated) {
 		drawGrid();
 	}
@@ -248,7 +272,7 @@ void ofApp::updateOffsets() {
 }
 
 
-bool ofApp::updateTracking() {
+bool ofApp::updateCamTracking() {
 	
 	ballId = -1;
 	holeId = -1;
@@ -333,43 +357,64 @@ void ofApp::updateCalibration() {
 
 void ofApp::drawTracking() {
 
-	ofFill();
-	ofSetHexColor(0xffffff);
-	//camDiff.draw(0, 0);
+	#ifdef USE_CAM
 
-	if(!trackingCalibrated) {
-		camColor.draw(0,0);
-		//cam.draw(0, 0);
-	} else {
-		if(toggleUndistort) {
+		ofFill();
+		ofSetHexColor(0xffffff);
+		//camDiff.draw(0, 0);
+
+		if(!trackingCalibrated) {
 			camColor.draw(0,0);
-			//camUndistorted.draw(0,0);
+			//cam.draw(0, 0);
 		} else {
-			cam.draw(0, 0);
+			if(toggleUndistort) {
+				camColor.draw(0,0);
+				//camUndistorted.draw(0,0);
+			} else {
+				cam.draw(0, 0);
+			}
 		}
-	}
-	
-	//ofNoFill();
-	//ofSetHexColor(0xff0000);s
-	//ofDrawRectangle(0,0,cam.getWidth(), cam.getHeight());
-	
-	//ofFill();
-	ofSetHexColor(0xffffff);
+		
+		//ofNoFill();
+		//ofSetHexColor(0xff0000);s
+		//ofDrawRectangle(0,0,cam.getWidth(), cam.getHeight());
+		
+		//ofFill();
+		ofSetHexColor(0xffffff);
 
-	if(ballId >= 0) {
-		float x = contourFinder.blobs[ballId].boundingRect.getCenter().x;
-		float y = contourFinder.blobs[ballId].boundingRect.getCenter().y;
-		contourFinder.blobs[ballId].draw(0,0);
-		//ofDrawCircle(x,y,20);
-		ofDrawBitmapString("BALL", x - 10, y - 10);
-	}
-	if(holeId >= 0) {
-		float x = contourFinder.blobs[holeId].boundingRect.getCenter().x;
-		float y = contourFinder.blobs[holeId].boundingRect.getCenter().y;
-		contourFinder.blobs[holeId].draw(0,0);
-		//ofDrawCircle(x,y,30);
-		ofDrawBitmapString("HOLE", x-10, y-10);
-	}
+		if(ballId >= 0) {
+			float x = contourFinder.blobs[ballId].boundingRect.getCenter().x;
+			float y = contourFinder.blobs[ballId].boundingRect.getCenter().y;
+			contourFinder.blobs[ballId].draw(0,0);
+			//ofDrawCircle(x,y,20);
+			ofDrawBitmapString("BALL", x - 10, y - 10);
+		}
+		if(holeId >= 0) {
+			float x = contourFinder.blobs[holeId].boundingRect.getCenter().x;
+			float y = contourFinder.blobs[holeId].boundingRect.getCenter().y;
+			contourFinder.blobs[holeId].draw(0,0);
+			//ofDrawCircle(x,y,30);
+			ofDrawBitmapString("HOLE", x-10, y-10);
+		}
+	
+	#else
+
+		ofFill();
+		ofSetHexColor(0x00FFFF); 
+		ofDrawCircle(ball.spos.x, ball.spos.y, 8);
+		ofDrawCircle(hole.spos.x, hole.spos.y, 13);
+		ofDrawBitmapString("BALL", ball.spos.x - 10, ballPos.y - 10);
+		ofDrawBitmapString("HOLE", hole.spos.x-10, hole.spos.y-10);
+
+		ofSetHexColor(0xFF0000); 
+		ofDrawCircle(ball.pos[0].x, ball.pos[0].y, 5);
+		ofDrawCircle(hole.pos[0].x, hole.pos[0].y, 10);
+		
+		ofNoFill();
+		ofSetHexColor(0xff00ff); 
+		ofDrawCircle(ball.spos.x, ball.spos.y, ball.mvel);
+
+	#endif
 
 }
 
@@ -437,33 +482,7 @@ void ofApp::drawFloor() {
 
 void ofApp::drawPlay() {
 
-	// tracking dots
-	#ifndef USE_CAM
-	ofFill();
-	ofSetHexColor(0xff0000); 
-	ofDrawCircle(ballPos.x, ballPos.y, 8);
-	ofDrawCircle(holePos.x, holePos.y, 13);
-	ofSetHexColor(0x00ffff); 
-	ofDrawCircle(ball.pos[0].x, ball.pos[0].y, 5);
-	ofDrawCircle(hole.pos[0].x, hole.pos[0].y, 10);
-	#endif
-
-	scenes.update(gotTracking, gotBallOrigin, ball.pos[0], hole.pos[0], ballOrigin);
-	
-	switch(scene) {
-		case 0:
-			scenes.circleLine();
-			break;
-		case 1:
-			scenes.circles();
-			break;
-		case 2:
-			scenes.parabolas();
-			break;
-		case 3:
-			scenes.parallels();
-			break;
-	}
+	game.draw();
 
 	// draw background mask
 	ofFill();
@@ -515,8 +534,11 @@ void ofApp::keyPressed(int key){
 		case '4':
 		case '5':
 		case '6':
-			scene = int(key) - 48;
-			cout << "scene: " << scene << endl;
+		case '7':
+		case '8':
+		case '9':
+			game.scene = int(key) - 48;
+			cout << "scene: " << game.scene << endl;
 			break;
 
 		// calibration debugging
@@ -528,9 +550,41 @@ void ofApp::keyPressed(int key){
 			gridIndex = 0;
 			break;
 
-		case 'b':
-			setBallOrigin = true;
+		case 'h':
+			hole.freeze = !hole.freeze;
 			break;
+
+		// DEBUGGING --------------------
+
+		case 'b':
+			game.ballOrigin = game.ballPos;
+			break;
+
+		case 'z':
+			cout << " ------------------------- " << endl;
+			//cout << "holePlaced = " << game.holePlaced << endl;
+			//cout << "ballPlaced = " << game.ballPlaced << endl;
+			cout << "ready = " << game.ready << endl;
+			cout << "transition = " << game.transition << endl;
+			cout << "scene = " << game.scene << endl;
+			cout << "ballPos = " << game.ballPos << endl;
+			cout << "holePos = " << game.holePos << endl;
+			cout << "ballOrigin = " << game.ballOrigin << endl;
+			cout << "ballTarget = " << game.ballTarget << endl;
+			cout << "holeTarget = " << game.holeTarget << endl;
+			cout << " ------------------------- " << endl;
+			break;
+
+		case 'x':
+			//cout << " ------------------------- " << endl;
+			//for (int i = 0; i < POS_SAMPLES; i++){
+			//	cout << ball.pos[i] << endl;
+			//}
+			cout << " ------------------------- " << endl;
+			cout << ball.spos << endl;
+			//cout << ball.pSpos << endl;
+			cout << " ========================= " << endl;
+
 
 	}
 }
@@ -542,9 +596,9 @@ void ofApp::mousePressed(int x, int y, int button){
 		}
 	#else
 		if(button > 0)
-			ballPos = ofVec2f(x,y);
-		else
 			holePos = ofVec2f(x,y);
+		else
+			ballPos = ofVec2f(x,y);
 	#endif
 }
 
@@ -552,9 +606,9 @@ void ofApp::mouseDragged(int x, int y, int button) {
 
 	#ifndef USE_CAM
 		if(button > 0)
-			ballPos = ofVec2f(x,y);
-		else
 			holePos = ofVec2f(x,y);
+		else
+			ballPos = ofVec2f(x,y);
 	#endif
 
 }
@@ -577,8 +631,43 @@ void ofApp::updateOscTracking() {
 			holePos *= trackingScale;
 			ballPos += trackingOffset;
 			holePos += trackingOffset;
+
+			ball.update(ballPos, gui->trackingThreshold, gui->avgWeighting);
+			hole.update(holePos, gui->trackingThreshold, gui->avgWeighting);
+
+			//updateSound();
 		}
 
 		//cout << m << endl;
 	}
+}
+
+
+void ofApp::updateSound() {
+
+	ofxOscMessage m1;
+	m1.setAddress("/bhd");
+	m1.addFloatArg(game.bhd);
+	oscSound.sendMessage(m1, false);
+	
+	ofxOscMessage m2;
+	m2.setAddress("/bod");
+	m2.addFloatArg(game.bod);
+	oscSound.sendMessage(m2, false);
+
+	ofxOscMessage m3;
+	m3.setAddress("/bha");
+	m3.addFloatArg(game.bha);
+	oscSound.sendMessage(m3, false);
+
+	ofxOscMessage m4;
+	m4.setAddress("/vel");
+	m4.addFloatArg(ball.mvel);
+	oscSound.sendMessage(m4, false);
+	
+	// cout << m1 << endl;
+	// cout << m2 << endl;
+	// cout << m3 << endl;
+	// cout << m4 << endl;
+
 }
