@@ -8,7 +8,7 @@ Players can interact however they link, moving the ball on the fairway.  When th
 
 Primarily developed in [Open Frameworks](https://openframeworks.cc/), tracking data is received via OSC from [Bonsai](https://bonsai-rx.org//), which currently handles the computer vision.  Audio is produced in [Pure Data](https://puredata.info/) and also controlled via OSC.
 
-The ball is 3d printed with a magnetic array below the surface.  A 40mm steel post simulates the hole, and has a corresponding ring of magnets at its base.
+The ball is 3d printed with an array of magnets below the surface.  A 40mm steel post simulates the hole, and has a corresponding ring of magnets at its base. The CAD models are available on [Onshape](https://cad.onshape.com/documents/92f3327b6291cbfc2fa2d6df/w/6e82c141cd279a7730d3e3a6/e/58de3413bd1bbb7cc23d46cb).
 
 [![](https://farm5.staticflickr.com/4884/45795298264_f5cf642907_z_d.jpg)](https://www.flickr.com/photos/tiagororke/45795298264/in/album-72157705124534055/)
 
