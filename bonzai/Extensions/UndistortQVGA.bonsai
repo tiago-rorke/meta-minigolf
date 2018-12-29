@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.4.0-preview">
+  <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q2="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns:q1="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp" xmlns="https://horizongir.org/bonsai">
+    <Nodes>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q1:ConvertScale">
+            <q1:Depth xsi:nil="true" />
+            <q1:Scale>10</q1:Scale>
+            <q1:Shift>0</q1:Shift>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q2:Undistort">
+          <q2:ImageSize xsi:nil="true" />
+          <q2:Alpha>0</q2:Alpha>
+          <q2:FocalLength>
+            <q2:X>1000</q2:X>
+            <q2:Y>1000</q2:Y>
+          </q2:FocalLength>
+          <q2:PrincipalPoint>
+            <q2:X>160</q2:X>
+            <q2:Y>120</q2:Y>
+          </q2:PrincipalPoint>
+          <q2:RadialDistortion>
+            <q2:X>-3</q2:X>
+            <q2:Y>0</q2:Y>
+            <q2:Z>0</q2:Z>
+          </q2:RadialDistortion>
+          <q2:TangentialDistortion>
+            <q2:X>0</q2:X>
+            <q2:Y>0</q2:Y>
+          </q2:TangentialDistortion>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q2:WarpAffine">
+          <q2:Transform>0.9,0,16;0,0.9,12</q2:Transform>
+          <q2:Flags>Linear</q2:Flags>
+          <q2:FillValue>
+            <q2:Val0>0</q2:Val0>
+            <q2:Val1>0</q2:Val1>
+            <q2:Val2>0</q2:Val2>
+            <q2:Val3>0</q2:Val3>
+          </q2:FillValue>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q2:AffineTransform">
+          <q2:Pivot>
+            <q2:X>160</q2:X>
+            <q2:Y>120</q2:Y>
+          </q2:Pivot>
+          <q2:Translation>
+            <q2:X>0</q2:X>
+            <q2:Y>0</q2:Y>
+          </q2:Translation>
+          <q2:Rotation>0</q2:Rotation>
+          <q2:Scale>
+            <q2:X>0.9</q2:X>
+            <q2:Y>0.9</q2:Y>
+          </q2:Scale>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedProperty">
+        <MemberName>Transform</MemberName>
+        <Name>Transform</Name>
+      </Expression>
+      <Expression xsi:type="WorkflowInput">
+        <Name>Source1</Name>
+      </Expression>
+      <Expression xsi:type="WorkflowOutput" />
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q2:WarpPerspective">
+          <q2:Source>
+            <q2:Point2f>
+              <q2:X>18.2139359</q2:X>
+              <q2:Y>39.27987</q2:Y>
+            </q2:Point2f>
+            <q2:Point2f>
+              <q2:X>12.5613346</q2:X>
+              <q2:Y>203.07692</q2:Y>
+            </q2:Point2f>
+            <q2:Point2f>
+              <q2:X>311.5211</q2:X>
+              <q2:Y>205.040924</q2:Y>
+            </q2:Point2f>
+            <q2:Point2f>
+              <q2:X>307.124634</q2:X>
+              <q2:Y>39.67267</q2:Y>
+            </q2:Point2f>
+          </q2:Source>
+          <q2:Destination>
+            <q2:Point2f>
+              <q2:X>0</q2:X>
+              <q2:Y>0</q2:Y>
+            </q2:Point2f>
+            <q2:Point2f>
+              <q2:X>0</q2:X>
+              <q2:Y>240</q2:Y>
+            </q2:Point2f>
+            <q2:Point2f>
+              <q2:X>320</q2:X>
+              <q2:Y>240</q2:Y>
+            </q2:Point2f>
+            <q2:Point2f>
+              <q2:X>320</q2:X>
+              <q2:Y>0</q2:Y>
+            </q2:Point2f>
+          </q2:Destination>
+          <q2:Flags>Linear</q2:Flags>
+          <q2:FillValue>
+            <q2:Val0>0</q2:Val0>
+            <q2:Val1>0</q2:Val1>
+            <q2:Val2>0</q2:Val2>
+            <q2:Val3>0</q2:Val3>
+          </q2:FillValue>
+        </Combinator>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge>
+        <From>0</From>
+        <To>2</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>1</From>
+        <To>7</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>2</From>
+        <To>1</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>3</From>
+        <To>4</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>4</From>
+        <To>2</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>5</From>
+        <To>0</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>7</From>
+        <To>6</To>
+        <Label>Source1</Label>
+      </Edge>
+    </Edges>
+  </Workflow>
+  <ExtensionTypes>
+    <Type>Bonsai.Dsp.ConvertScale, Bonsai.Dsp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Undistort, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.WarpAffine, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.AffineTransform, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.WarpPerspective, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+  </ExtensionTypes>
+</WorkflowBuilder>

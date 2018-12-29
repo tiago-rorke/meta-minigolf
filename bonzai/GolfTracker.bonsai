@@ -1,0 +1,579 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.4.0-preview">
+  <Workflow xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:q1="clr-namespace:Bonsai.CLEyeMulticam;assembly=Bonsai.CLEyeMulticam" xmlns:q2="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders" xmlns:q3="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision" xmlns:q4="clr-namespace:Bonsai.Osc;assembly=Bonsai.Osc" xmlns:q5="clr-namespace:Bonsai.IO;assembly=Bonsai.System" xmlns:q6="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp" xmlns="https://horizongir.org/bonsai">
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q1:CLEyeSource">
+          <q1:CameraGuid xsi:nil="true" />
+          <q1:CameraIndex>0</q1:CameraIndex>
+          <q1:ColorMode>CLEYE_MONO_RAW</q1:ColorMode>
+          <q1:Resolution>CLEYE_QVGA</q1:Resolution>
+          <q1:FrameRate>200</q1:FrameRate>
+          <q1:AutoGain>false</q1:AutoGain>
+          <q1:AutoExposure>false</q1:AutoExposure>
+          <q1:AutoWhiteBalance>false</q1:AutoWhiteBalance>
+          <q1:Gain>0</q1:Gain>
+          <q1:Exposure>511</q1:Exposure>
+          <q1:WhiteBalanceRed>255</q1:WhiteBalanceRed>
+          <q1:WhiteBalanceGreen>255</q1:WhiteBalanceGreen>
+          <q1:WhiteBalanceBlue>255</q1:WhiteBalanceBlue>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:CreateWindow">
+            <q2:Width>640</q2:Width>
+            <q2:Height>480</q2:Height>
+            <q2:VSync>On</q2:VSync>
+            <q2:SwapSync>false</q2:SwapSync>
+            <q2:ClearColor>Black</q2:ClearColor>
+            <q2:ClearMask>DepthBufferBit ColorBufferBit</q2:ClearMask>
+            <q2:CursorVisible>true</q2:CursorVisible>
+            <q2:Location xsi:nil="true" />
+            <q2:WindowBorder>Resizable</q2:WindowBorder>
+            <q2:WindowState>Fullscreen</q2:WindowState>
+            <q2:DisplayDevice>Second</q2:DisplayDevice>
+            <q2:TargetRenderFrequency>0</q2:TargetRenderFrequency>
+            <q2:RenderState />
+            <q2:GraphicsMode>
+              <q2:ColorFormat>
+                <q2:Red>8</q2:Red>
+                <q2:Green>8</q2:Green>
+                <q2:Blue>8</q2:Blue>
+                <q2:Alpha>8</q2:Alpha>
+              </q2:ColorFormat>
+              <q2:Depth>16</q2:Depth>
+              <q2:Stencil>0</q2:Stencil>
+              <q2:Samples>0</q2:Samples>
+              <q2:AccumulatorFormat>
+                <q2:Red>0</q2:Red>
+                <q2:Green>0</q2:Green>
+                <q2:Blue>0</q2:Blue>
+                <q2:Alpha>0</q2:Alpha>
+              </q2:AccumulatorFormat>
+              <q2:Buffers>2</q2:Buffers>
+              <q2:Stereo>false</q2:Stereo>
+            </q2:GraphicsMode>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:TextureResources">
+            <q2:Textures>
+              <q2:TextureConfiguration xsi:type="q2:ImageTexture">
+                <q2:Name>checkerboard-wallpaper-1280x800</q2:Name>
+                <q2:Width xsi:nil="true" />
+                <q2:Height xsi:nil="true" />
+                <q2:InternalFormat>Rgba</q2:InternalFormat>
+                <q2:WrapS>Repeat</q2:WrapS>
+                <q2:WrapT>Repeat</q2:WrapT>
+                <q2:MinFilter>Linear</q2:MinFilter>
+                <q2:MagFilter>Linear</q2:MagFilter>
+                <q2:FileName>Textures\checkerboard-wallpaper-1280x800.jpg</q2:FileName>
+                <q2:ColorType>Unchanged</q2:ColorType>
+                <q2:FlipMode>Vertical</q2:FlipMode>
+              </q2:TextureConfiguration>
+            </q2:Textures>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:LoadResources" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:ShaderResources">
+            <q2:Shaders>
+              <q2:ShaderConfiguration xsi:type="q2:Material">
+                <q2:Name>Image</q2:Name>
+                <q2:RenderState />
+                <q2:ShaderUniforms />
+                <q2:BufferBindings />
+                <q2:FramebufferAttachments />
+                <q2:VertexShader>Shaders\Quad.vert</q2:VertexShader>
+                <q2:FragmentShader>Shaders\Image.frag</q2:FragmentShader>
+              </q2:ShaderConfiguration>
+            </q2:Shaders>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:RenderFrame" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:BindTexture">
+            <q2:TextureSlot>Texture0</q2:TextureSlot>
+            <q2:ShaderName>Image</q2:ShaderName>
+            <q2:TextureName>checkerboard-wallpaper-1280x800</q2:TextureName>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:DrawMesh">
+            <q2:ShaderName>Image</q2:ShaderName>
+            <q2:MeshName>Quad</q2:MeshName>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:MeshResources">
+            <q2:Meshes>
+              <q2:MeshConfiguration xsi:type="q2:TexturedQuad">
+                <q2:Name>Quad</q2:Name>
+                <q2:QuadEffects>FlipVertically</q2:QuadEffects>
+              </q2:MeshConfiguration>
+            </q2:Meshes>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:WarpPerspective">
+            <q2:Destination>
+              <q2:Point2f>
+                <q2:X>-0.822563</q2:X>
+                <q2:Y>-0.5156102</q2:Y>
+              </q2:Point2f>
+              <q2:Point2f>
+                <q2:X>-0.8072289</q2:X>
+                <q2:Y>0.763481557</q2:Y>
+              </q2:Point2f>
+              <q2:Point2f>
+                <q2:X>0.894852161</q2:X>
+                <q2:Y>0.7653737</q2:Y>
+              </q2:Point2f>
+              <q2:Point2f>
+                <q2:X>0.8849945</q2:X>
+                <q2:Y>-0.5193945</q2:Y>
+              </q2:Point2f>
+            </q2:Destination>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:UpdateUniform">
+            <q2:UniformName>transform</q2:UniformName>
+            <q2:ShaderName>Image</q2:ShaderName>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="q2:UpdateTexture">
+            <q2:TextureName>checkerboard-wallpaper-1280x800</q2:TextureName>
+            <q2:TextureTarget>Texture2D</q2:TextureTarget>
+            <q2:InternalFormat>Rgba</q2:InternalFormat>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:FindContours">
+          <q3:Mode>External</q3:Mode>
+          <q3:Method>ChainApproxNone</q3:Method>
+          <q3:Offset>
+            <q3:X>0</q3:X>
+            <q3:Y>0</q3:Y>
+          </q3:Offset>
+          <q3:MinArea>15</q3:MinArea>
+          <q3:MaxArea>50</q3:MaxArea>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:BinaryRegionAnalysis" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:Grayscale" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:FindContours">
+          <q3:Mode>External</q3:Mode>
+          <q3:Method>ChainApproxNone</q3:Method>
+          <q3:Offset>
+            <q3:X>0</q3:X>
+            <q3:Y>0</q3:Y>
+          </q3:Offset>
+          <q3:MinArea>800</q3:MinArea>
+          <q3:MaxArea>1500</q3:MaxArea>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:LargestBinaryRegion" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:BinaryRegionAnalysis" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:LargestBinaryRegion" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="Zip" />
+      </Expression>
+      <Expression xsi:type="q4:SendMessage">
+        <q4:Connection>SendMessage</q4:Connection>
+        <q4:Address>/golf</q4:Address>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Item1.Centroid.X,Item1.Centroid.Y,Item2.Centroid.X,Item2.Centroid.Y</Selector>
+      </Expression>
+      <Expression xsi:type="q5:CsvWriter">
+        <q5:FileName>log.txt</q5:FileName>
+        <q5:Append>false</q5:Append>
+        <q5:Overwrite>false</q5:Overwrite>
+        <q5:Suffix>Timestamp</q5:Suffix>
+        <q5:IncludeHeader>false</q5:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:Resize">
+          <q3:Size>
+            <q3:Width>1024</q3:Width>
+            <q3:Height>582</q3:Height>
+          </q3:Size>
+          <q3:Interpolation>Linear</q3:Interpolation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Area</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Area</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="q3:BackgroundSubtraction">
+          <q3:BackgroundFrames>1</q3:BackgroundFrames>
+          <q3:AdaptationRate>0</q3:AdaptationRate>
+          <q3:ThresholdValue>37</q3:ThresholdValue>
+          <q3:ThresholdType>Binary</q3:ThresholdType>
+          <q3:SubtractionMethod>Absolute</q3:SubtractionMethod>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="Disable">
+              <Builder xsi:type="Combinator">
+                <Combinator xsi:type="q6:ConvertScale">
+                  <q6:Depth xsi:nil="true" />
+                  <q6:Scale>10</q6:Scale>
+                  <q6:Shift>0</q6:Shift>
+                </Combinator>
+              </Builder>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:Undistort">
+                <q3:ImageSize xsi:nil="true" />
+                <q3:Alpha>0</q3:Alpha>
+                <q3:FocalLength>
+                  <q3:X>1000</q3:X>
+                  <q3:Y>1000</q3:Y>
+                </q3:FocalLength>
+                <q3:PrincipalPoint>
+                  <q3:X>160</q3:X>
+                  <q3:Y>120</q3:Y>
+                </q3:PrincipalPoint>
+                <q3:RadialDistortion>
+                  <q3:X>-3</q3:X>
+                  <q3:Y>0</q3:Y>
+                  <q3:Z>0</q3:Z>
+                </q3:RadialDistortion>
+                <q3:TangentialDistortion>
+                  <q3:X>0</q3:X>
+                  <q3:Y>0</q3:Y>
+                </q3:TangentialDistortion>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:WarpAffine">
+                <q3:Transform>0.9,0,16;0,0.9,12</q3:Transform>
+                <q3:Flags>Linear</q3:Flags>
+                <q3:FillValue>
+                  <q3:Val0>0</q3:Val0>
+                  <q3:Val1>0</q3:Val1>
+                  <q3:Val2>0</q3:Val2>
+                  <q3:Val3>0</q3:Val3>
+                </q3:FillValue>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:AffineTransform">
+                <q3:Pivot>
+                  <q3:X>160</q3:X>
+                  <q3:Y>120</q3:Y>
+                </q3:Pivot>
+                <q3:Translation>
+                  <q3:X>0</q3:X>
+                  <q3:Y>0</q3:Y>
+                </q3:Translation>
+                <q3:Rotation>0</q3:Rotation>
+                <q3:Scale>
+                  <q3:X>0.9</q3:X>
+                  <q3:Y>0.9</q3:Y>
+                </q3:Scale>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ExternalizedProperty">
+              <MemberName>Transform</MemberName>
+              <Name>Transform</Name>
+            </Expression>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="q3:WarpPerspective">
+                <q3:Source>
+                  <q3:Point2f>
+                    <q3:X>14.833333</q3:X>
+                    <q3:Y>36.2225952</q3:Y>
+                  </q3:Point2f>
+                  <q3:Point2f>
+                    <q3:X>7.16666651</q3:X>
+                    <q3:Y>206.4081</q3:Y>
+                  </q3:Point2f>
+                  <q3:Point2f>
+                    <q3:X>315.166656</q3:X>
+                    <q3:Y>208.4317</q3:Y>
+                  </q3:Point2f>
+                  <q3:Point2f>
+                    <q3:X>310.5</q3:X>
+                    <q3:Y>35.4131546</q3:Y>
+                  </q3:Point2f>
+                </q3:Source>
+                <q3:Destination>
+                  <q3:Point2f>
+                    <q3:X>0</q3:X>
+                    <q3:Y>0</q3:Y>
+                  </q3:Point2f>
+                  <q3:Point2f>
+                    <q3:X>0</q3:X>
+                    <q3:Y>240</q3:Y>
+                  </q3:Point2f>
+                  <q3:Point2f>
+                    <q3:X>320</q3:X>
+                    <q3:Y>240</q3:Y>
+                  </q3:Point2f>
+                  <q3:Point2f>
+                    <q3:X>320</q3:X>
+                    <q3:Y>0</q3:Y>
+                  </q3:Point2f>
+                </q3:Destination>
+                <q3:Flags>Linear</q3:Flags>
+                <q3:FillValue>
+                  <q3:Val0>0</q3:Val0>
+                  <q3:Val1>0</q3:Val1>
+                  <q3:Val2>0</q3:Val2>
+                  <q3:Val3>0</q3:Val3>
+                </q3:FillValue>
+              </Combinator>
+            </Expression>
+          </Nodes>
+          <Edges>
+            <Edge>
+              <From>0</From>
+              <To>2</To>
+              <Label>Source1</Label>
+            </Edge>
+            <Edge>
+              <From>1</From>
+              <To>7</To>
+              <Label>Source1</Label>
+            </Edge>
+            <Edge>
+              <From>2</From>
+              <To>1</To>
+              <Label>Source1</Label>
+            </Edge>
+            <Edge>
+              <From>3</From>
+              <To>4</To>
+              <Label>Source1</Label>
+            </Edge>
+            <Edge>
+              <From>4</From>
+              <To>2</To>
+              <Label>Source2</Label>
+            </Edge>
+            <Edge>
+              <From>5</From>
+              <To>0</To>
+              <Label>Source1</Label>
+            </Edge>
+            <Edge>
+              <From>7</From>
+              <To>6</To>
+              <Label>Source1</Label>
+            </Edge>
+          </Edges>
+        </Workflow>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge>
+        <From>0</From>
+        <To>27</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>1</From>
+        <To>8</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>2</From>
+        <To>4</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>4</From>
+        <To>3</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>5</From>
+        <To>9</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>6</From>
+        <To>7</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>8</From>
+        <To>2</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>9</From>
+        <To>10</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>10</From>
+        <To>6</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>11</From>
+        <To>23</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>12</From>
+        <To>13</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>13</From>
+        <To>16</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>14</From>
+        <To>11</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>15</From>
+        <To>17</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>16</From>
+        <To>24</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>16</From>
+        <To>19</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>17</From>
+        <To>18</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>18</From>
+        <To>25</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>18</From>
+        <To>19</To>
+        <Label>Source2</Label>
+      </Edge>
+      <Edge>
+        <From>19</From>
+        <To>21</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>21</From>
+        <To>22</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>22</From>
+        <To>20</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>23</From>
+        <To>26</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>26</From>
+        <To>12</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>26</From>
+        <To>15</To>
+        <Label>Source1</Label>
+      </Edge>
+      <Edge>
+        <From>27</From>
+        <To>14</To>
+        <Label>Source1</Label>
+      </Edge>
+    </Edges>
+  </Workflow>
+  <ExtensionTypes>
+    <Type>Bonsai.CLEyeMulticam.CLEyeSource, Bonsai.CLEyeMulticam, Version=2.2.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.CreateWindow, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.TextureResources, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.LoadResources, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.ShaderResources, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.RenderFrame, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.BindTexture, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.DrawMesh, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.MeshResources, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.WarpPerspective, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.UpdateUniform, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Shaders.UpdateTexture, Bonsai.Shaders, Version=0.19.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.FindContours, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.BinaryRegionAnalysis, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Grayscale, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.LargestBinaryRegion, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Reactive.Zip, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Osc.SendMessage, Bonsai.Osc, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.IO.CsvWriter, Bonsai.System, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Resize, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.BackgroundSubtraction, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Dsp.ConvertScale, Bonsai.Dsp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.Undistort, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.WarpAffine, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.AffineTransform, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+    <Type>Bonsai.Vision.WarpPerspective, Bonsai.Vision, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
+  </ExtensionTypes>
+</WorkflowBuilder>
